@@ -1,53 +1,31 @@
-use std::env;
-use std::env::Args;
-pub(crate) fn parse_archive(args: Args) -> (Vec<String>, String, bool) {
-    let args: Vec<String> = args.collect();
-    let mut is_still_file : bool  = false;
-    let mut file_length = 0;
-    let mut file_start = 0;
-    let mut output_file  = String::new();
-    let mut valid = true;
-    let usage_message="Usage: ./main archive --files <file1> <file2> ... --output <output_file>";
-    valid = args.contains(&String::from("archive"));
-    valid = args.contains(&String::from("--files"));
-    valid = args.contains(&String::from("--output"));
+use std::path::PathBuf;
+use clap::{Parser, Subcommand};
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+pub(crate) struct Cli {
+    name: Option<String>,
 
-    for mut i in 1..args.len() {
-        if args[i] == "--files"{
-            is_still_file = true;
-            i+=1;
-            file_start=i;
-        }
-        if args[i] == "--output"{
-            is_still_file = false;
-            file_length-=1;
-            output_file = args[i+1].clone();
-        }
-        if is_still_file {
-            file_length+=1;
-        }
-    }
-    if output_file == "" {
-        valid = false;
-    }
-    if file_length == 0 {
-        valid = false;
-    }
+    #[arg(short, long, action = clap::ArgAction::Count)]
+    debug: u8,
 
-    return (args[file_start..file_start+file_length].to_vec(), output_file,valid);
+    #[command(subcommand)]
+    pub(crate) command: Option<Commands>,
 }
 
-pub(crate) fn parse_dearchive(args: Args) -> (String, bool) {
-    let args: Vec<String> = args.collect();
-    let mut file_start = 0;
-    let mut valid = true;
-    valid = args.contains(&String::from("dearchive"));
-    valid = args.contains(&String::from("--file"));
-    for mut i in 0..args.len() {
-        if args[i] == "--file"{
-            file_start = i+1
-        }
+#[derive(Subcommand)]
+pub(crate) enum Commands {
+    Archive {
+        #[arg(short, long)]
+        files: Vec<PathBuf>,
+        output: PathBuf,
+        compression: Option<String>,
+        encrypt: Option<bool>,
+        password: Option<String>
+    },
+    Decompress{
+        input: PathBuf,
+        compression: Option<String>,
+        decrypt: Option<bool>,
+        password: Option<String>
     }
-    let output_file = args[file_start].clone();
-    return (output_file,valid);
 }

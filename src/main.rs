@@ -1,24 +1,29 @@
 use std::env;
+use clap::Parser;
+
 mod arg_parser;
 mod archive;
+mod huffman;
+
 use archive::{archive_files,de_archive_files};
-use crate::arg_parser::{parse_archive, parse_dearchive};
-
+use arg_parser::Cli;
+use crate::arg_parser::Commands;
+use huffman::create_freq_for_ascii;
 fn main() {
-    let (files, archive,valid) = parse_archive(env::args());
-    if valid {
-        println!("files: {:?}", files);
-        println!("archive: {:?}", archive);
-        archive_files(files, archive)
-    }
-    else {
-        let (output_file,valid) = parse_dearchive(env::args());
-        de_archive_files(output_file);
-        if valid {
-        }
-        else {
-            println!("Invalid arguments");
-        }
-    }
-
+    // let cli = Cli::parse();
+    // match &cli.command {
+    //     Some(Commands::Archive { output, .. }) => {
+    //         println!("{:?}", output.to_str())
+    //     }
+    //     Some(Commands::Archive {compression, .. }) => {
+    //         println!("{:?}",compression)
+    //     }
+    //     Some(Commands::Archive {files, .. }) => {
+    //         let files_str = ".";
+    //         println!("{:?}",files_str);
+    //     }
+    //     None => {}
+    //     _ => {}
+    // }
+    // create_freq_for_ascii("helloworld.txt")
 }
